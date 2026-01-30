@@ -199,3 +199,109 @@ Parallel ports deserved better than bit-banged DACs.
 
 Now they have it.
 
+---
+
+## ❓ Why Not Parallel-Port Passthrough?
+
+PARALAX intentionally does **not** provide a physical or electrical passthrough of the DB25 parallel port.
+
+This is a deliberate design choice.
+
+---
+
+### 1. Signal Integrity Comes First
+
+Classic parallel-port audio devices rely on:
+- CPU-driven busy loops
+- edge timing measured in microseconds
+- undefined electrical behavior across chipsets
+
+Introducing a passthrough would:
+- add bus loading
+- introduce propagation delay
+- risk contention between devices
+
+PARALAX guarantees **clean, deterministic capture** by being the *only* device on the bus.
+
+---
+
+### 2. There Is Nothing to “Share”
+
+Most LPT sound devices are:
+- write-only
+- unidirectional
+- unaware of other hardware
+
+The PC is not querying a sound card — it is *shoving bits out a port and hoping something listens*.
+
+PARALAX listens faithfully and completely.
+
+A passthrough device would have no meaningful protocol to arbitrate.
+
+---
+
+### 3. Passthrough Breaks the Core Promise
+
+PARALAX exists to:
+- replace fragile DAC dongles
+- eliminate ISA dependencies
+- provide reproducible, clock-accurate playback
+
+Passthrough implies:
+- “this device might miss something”
+- “timing might vary”
+- “audio may or may not match”
+
+That undermines the entire goal.
+
+---
+
+### 4. Software Passthrough Is Superior
+
+If passthrough is needed, it can be done **at a higher level**, with full awareness:
+
+- DB25 → PARALAX → ESP32
+- ESP32 mirrors traffic to:
+  - real sound chips
+  - emulation engines
+  - visualizers
+  - recording tools
+
+This allows:
+- inspection
+- transformation
+- logging
+- replay
+
+All things impossible with a passive passthrough.
+
+---
+
+### 5. Future Expansion Is Not Closed
+
+While physical passthrough is excluded, the architecture intentionally allows:
+
+- mirrored register streams
+- simultaneous real + emulated playback
+- live visualization of external hardware
+- conditional routing based on detected protocol
+
+If a *useful* passthrough scenario emerges, it will be implemented deliberately — not electrically.
+
+---
+
+### 6. In Short
+
+PARALAX does not sit *between* devices.
+
+It **becomes** the device.
+
+Parallel-port audio was always a hack.  
+PARALAX is the first time it’s been treated like a system.
+
+---
+
+> If you are looking to monitor or visualize an existing ISA or LPT sound card,
+> that is a different (and interesting) problem — but not the one PARALAX solves.
+
+
