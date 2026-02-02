@@ -1,12 +1,44 @@
-# PARALAX: LPT Sound System  
-### Universal DB25 Audio Interface for ESP32-TrueVGM-Chip-Player
+# OPN-Paralax: LPT Sound System  
+### Universal DB25 Audio Interface for OPN-TrueVGM
 
-**PARALAX** is a cycle-accurate parallel-port sound interface that replaces classic LPT audio devices such as **Covox Speech Thing**, **Disney Sound Source**, and **OPL2LPT / OPL3LPT**.
+**OPN-Paralax** is a cycle-accurate parallel-port sound interface that replaces classic LPT audio devices such as **Covox Speech Thing**, **Disney Sound Source**, and **OPL2LPT / OPL3LPT**.
 
-It captures raw DB25 bus activity using an **RP2040** and translates it into modern, deterministic audio and register streams — completely **driverless**, **IRQ-free**, and **timing-faithful**.
+It captures raw DB25 bus activity using an **RP2040** and translates it into deterministic audio and register streams — completely **driverless**, **IRQ-free**, and **timing-faithful**.
 
-PARALAX can operate **standalone**, or as a high-performance front-end for the  
-[ESP32-TrueVGM-Chip-Player](https://github.com/thisoldcpu/ESP32-TrueVGM-Chip-Player), where it unlocks real Yamaha OPL and PSG hardware playback.
+OPN-Paralax can operate **standalone** or as a high-performance front-end for **OPN-TrueVGM**, where it unlocks real Yamaha OPL and PSG hardware playback.
+
+---
+
+## 🎥 Review & Capture Workflow (Why This Exists)
+
+Parallel-port audio has always been painful to demonstrate.
+
+Reviewing Covox, Disney Sound Source, or OPL2LPT hardware traditionally requires:
+
+- obscure ISA cards or fragile DACs
+- analog line-in capture with noise and level issues
+- external mixers, adapters, and gain staging
+- timing drift between audio and video capture
+
+As a result, nearly every LPT audio review online sounds wrong.
+
+### OPN-Paralax eliminates the entire capture problem.
+
+ **Typical Reviewer Setup**
+
+- **DB25 → Retro PC**  
+  *(486 / Pentium / DOSBox host)*
+
+- **USB-C → Capture / Streaming PC**  
+  *(OBS, DAW, NLE, broadcast chain)*
+
+- Launch a legacy title (e.g. *Arachnophobia*)  
+  Select **Disney Sound Source**, **Covox**, or **OPLxLPT**
+
+Audio appears as a clean, clock-stable digital stream with no analog capture, mixers, or re-routing.
+
+The retro PC believes it is driving a classic parallel-port sound device.  
+The capture PC receives production-ready audio.
 
 ---
 
@@ -41,7 +73,7 @@ PARALAX can operate **standalone**, or as a high-performance front-end for the
 
 **Implementation**
 - Timing-aware capture
-- Converted to modern audio streams
+- Converted to deterministic audio streams
 
 ---
 
@@ -53,7 +85,7 @@ PARALAX can operate **standalone**, or as a high-performance front-end for the
 - Register writes captured verbatim
 - Forwarded losslessly to:
   - Soft-OPL engine
-  - **Real YM3812 / YMF262 hardware** (via ESP32-TrueVGM Tier-3)
+  - **Real YM3812 / YMF262 hardware** (via OPN-TrueVGM Tier-3)
 
 No ISA slots. No emulation guesswork. No reinterpretation.
 
@@ -61,7 +93,7 @@ No ISA slots. No emulation guesswork. No reinterpretation.
 
 ## 🔀 System Architecture
 
-### RP2040 W — The Front-End Interface
+### RP2040 — The Front-End Interface
 
 - **Core 0**
   - PIO state machines
@@ -75,16 +107,15 @@ No ISA slots. No emulation guesswork. No reinterpretation.
 
 - **I/O**
   - DB25 (Parallel Port)
-  - USB CDC (Debug / Control)
-  - High-speed SPI or I²S (to Tier-3)
+  - High-speed SPI or I²S (to OPN-TrueVGM Tier-3)
 
 The RP2040 handles all timing-critical parallel-port work so the host PC doesn’t have to.
 
 ---
 
-### ESP32-TrueVGM Tier-3 — The Audio Engine
+### OPN-TrueVGM Tier-3 — The Audio Engine
 
-When paired with the ESP32-TrueVGM-Chip-Player:
+When paired with **OPN-TrueVGM**:
 
 - **Daemon Core**
   - Watchdog
@@ -101,28 +132,8 @@ When paired with the ESP32-TrueVGM-Chip-Player:
 
 Visualization and UI reflect **actual register activity**, not reconstructed waveforms.
 
----
-
-## 🚀 Virtual Passthrough (The Lunch-Eater)
-
-Because the RP2040 is USB-native, PARALAX can act as a **multi-input audio front-end**, not just an LPT decoder.
-
-### Supported Operating Modes
-
-1. **Legacy Mode**  
-   DB25 → RP2040 → ESP32 → Speakers  
-   *(Pure DOS / retro source)*
-
-2. **Modern Mode**  
-   USB Audio → ESP32 → Speakers  
-   *(Acts as a standard USB DAC)*
-
-3. **Hybrid Mode**  
-   Mix modern OS audio (Discord, Spotify)  
-   with retro LPT audio (Doom, Monkey Island)  
-   in real time, in hardware.
-
-No OS mixers. No latency stacks. No hacks.
+**Host I/O**
+- **USB-C Audio out** (to capture / streaming PC)
 
 ---
 
@@ -154,10 +165,8 @@ No OS mixers. No latency stacks. No hacks.
 
 ## 🎚️ Typical User Flow
 
-1. User connects PARALAX to PC via DB25.
-2. ESP32-TrueVGM detects LPT traffic patterns.
-3. UI displays: External Source Detected: OPL3LPT
-4. Audio is routed to speakers or real chips with effectively zero added latency.
+1. User connects PARALAX to PC with DB25 parallel port and a USB-C cable. Plug in USB-C cable. Paralax is now listening and ready to stream audio, or plug into a PC and select Paralax Audio as the inpout device.
+2. Audio is routed to speakers or real chips with effectively zero added latency.
 
 The PC believes it is talking to a classic parallel-port sound device.
 
@@ -165,19 +174,18 @@ It is not.
 
 ---
 
-## 🔗 Relationship to ESP32-TrueVGM-Chip-Player
+## 🔗 Relationship to OPN-TrueVGM
 
-PARALAX and ESP32-TrueVGM are **independent projects** that can operate separately:
+PARALAX and OPN-TrueVGM are **independent projects** that can operate separately:
 
 - **PARALAX alone**
-- Parallel-port audio capture
-- USB audio output
-- Diagnostic and monitoring tool
+  - Parallel-port audio capture
+  - Diagnostic and monitoring tool
 
-- **ESP32-TrueVGM alone**
-- VGM playback
-- Chip emulation
-- Real-chip synthesis
+- **OPN-TrueVGM alone**
+  - VGM playback
+  - Chip emulation or 
+  - Real-chip Playback
 
 **Together**, they form a complete, modern replacement for:
 - ISA sound cards
@@ -236,7 +244,7 @@ The PC is not querying a sound card — it is *shoving bits out a port and hopin
 
 PARALAX listens faithfully and completely.
 
-A passthrough device would have no meaningful protocol to arbitrate.
+A passthrough device would have no meaningful protocol to arbitrate and would interfere with capture.
 
 ---
 
@@ -260,8 +268,8 @@ That undermines the entire goal.
 
 If passthrough is needed, it can be done **at a higher level**, with full awareness:
 
-- DB25 → PARALAX → ESP32
-- ESP32 mirrors traffic to:
+- DB25 → PARALAX → OPN-TrueVGM
+- OPN-TrueVGM mirrors traffic to:
   - real sound chips
   - emulation engines
   - visualizers
@@ -292,16 +300,14 @@ If a *useful* passthrough scenario emerges, it will be implemented deliberately 
 
 ### 6. In Short
 
-PARALAX does not sit *between* devices.
+OPN-Paralax does not sit *between* devices.
 
 It **becomes** the device.
 
 Parallel-port audio was always a hack.  
-PARALAX is the first time it’s been treated like a system.
+OPN-Paralax is the first time it’s been treated like a system.
 
 ---
 
 > If you are looking to monitor or visualize an existing ISA or LPT sound card,
 > that is a different (and interesting) problem — but not the one PARALAX solves.
-
-
