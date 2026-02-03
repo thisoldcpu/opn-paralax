@@ -6,7 +6,7 @@ Cycle-accurate parallel port capture for DOS-era audio devices.
 
 - RP2040 Pico or Pico W
 - DB25 Male connector
-- 9x 470Ω resistors (current limiting / protection)
+- 17x 470Ω resistors (current limiting / protection)
 - Wire for connections
 
 ## Wiring Diagram
