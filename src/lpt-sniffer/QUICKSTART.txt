@@ -1,0 +1,152 @@
+╔════════════════════════════════════════════════════════════════╗
+║           PARALAX LPT SNIFFER - QUICK REFERENCE                ║
+║                    ThisOldCPU Project                          ║
+╚════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────┐
+│ WIRING (All resistors are 470Ω)                              │
+└──────────────────────────────────────────────────────────────┘
+
+DB25 Pin → [Resistor] → Pico Pin
+─────────────────────────────────
+  1 (STROBE) → [470Ω] → GP10 ← CRITICAL TIMING PIN
+  2 (D0)     → [470Ω] → GP2
+  3 (D1)     → [470Ω] → GP3
+  4 (D2)     → [470Ω] → GP4
+  5 (D3)     → [470Ω] → GP5
+  6 (D4)     → [470Ω] → GP6
+  7 (D5)     → [470Ω] → GP7
+  8 (D6)     → [470Ω] → GP8
+  9 (D7)     → [470Ω] → GP9
+  10 (ACK)   → [470Ω] → GP11 (DSS detection)
+  11 (BUSY)  → [470Ω] → GP12 (DSS detection)
+  14 (AUTOFEED)→[470Ω]→ GP13 (OPL2 detection)
+  16 (INIT)  → [470Ω] → GP14 (OPL2 detection)
+  17 (SELECTIN)→[470Ω]→ GP15 (OPL2 detection)
+  12 (PAPER_OUT)→[470Ω]→GP16 (optional)
+  13 (SELECT)→ [470Ω] → GP17 (optional)
+  15 (ERROR) → [470Ω] → GP18 (optional)
+  18-25 (GND) → (pairs) → 4x Pico GND pins
+
+NOTE: GP0-1 left free to avoid UART0 conflict with USB serial
+
+┌──────────────────────────────────────────────────────────────┐
+│ SOLDERING ORDER (Easiest to Hardest)                         │
+└──────────────────────────────────────────────────────────────┘
+
+1. ✓ Grounds first (18-25 in pairs to 4 Pico GNDs)
+2. ✓ Data pins outer-to-inner (D0=2, D7=9, then D1-D6)
+3. ✓ STROBE (Pin 1 to GP10)
+4. ✓ Status lines (ACK=10, BUSY=11)
+5. ✓ Control lines (14, 16, 17)
+6. ✓ Optional status (12, 13, 15)
+
+ALL COMPLETE ✓ Hardware ready for testing
+
+┌──────────────────────────────────────────────────────────────┐
+│ FLASHING FIRMWARE                                             │
+└──────────────────────────────────────────────────────────────┘
+
+PlatformIO:
+  $ cd paralax-lpt-sniffer
+  $ pio run -t upload
+
+Arduino IDE:
+  1. Tools → Board → Raspberry Pi Pico
+  2. Open src/main.cpp
+  3. Upload
+
+┌──────────────────────────────────────────────────────────────┐
+│ TESTING PROCEDURE                                             │
+└──────────────────────────────────────────────────────────────┘
+
+1. Connect Pico to PC via USB
+2. Open serial: pio device monitor (or screen /dev/ttyACM0 115200)
+3. Connect DB25 to DOS PC LPT port
+4. Boot DOS machine
+5. Load Dungeon Master with Covox selected
+6. Watch for data stream:
+   
+   Expected Output:
+   ════════════════════════════════════════
+   PARALAX LPT Sniffer v0.1
+   ...
+   Waiting for data...
+   ════════════════════════════════════════
+   0,00
+   125,80
+   250,FF      ← If you see this, IT WORKS!
+   ...
+
+┌──────────────────────────────────────────────────────────────┐
+│ CAPTURE TO FILE                                               │
+└──────────────────────────────────────────────────────────────┘
+
+Linux/Mac:
+  $ pio device monitor > capture.csv
+  
+Windows:
+  Use PuTTY: Connection → Serial → Logging → "All session output"
+
+┌──────────────────────────────────────────────────────────────┐
+│ ANALYZE CAPTURE                                               │
+└──────────────────────────────────────────────────────────────┘
+
+  $ python3 tools/analyze_capture.py capture.csv
+  
+  Output will identify:
+  • Device type (Covox/DSS/OPL2LPT)
+  • Sample rate
+  • Data quality
+  • Wiring issues
+
+┌──────────────────────────────────────────────────────────────┐
+│ TROUBLESHOOTING                                               │
+└──────────────────────────────────────────────────────────────┘
+
+No data?
+  ✗ Check grounds (most common issue)
+  ✗ Verify STROBE on GP8
+  ✗ DOS software configured for LPT1
+
+Garbage data?
+  ✗ Check all 9 resistors installed
+  ✗ Look for shorts between adjacent pins
+  ✗ Test continuity on each wire
+
+Intermittent?
+  ✗ Resolder cold joints
+  ✗ Check resistor orientation (doesn't matter, but loose?)
+  ✗ Try different USB port
+
+┌──────────────────────────────────────────────────────────────┐
+│ EXPECTED PATTERNS                                             │
+└──────────────────────────────────────────────────────────────┘
+
+COVOX:
+  • Continuous stream
+  • ~22 kHz (45 μs between samples)
+  • Full range 0x00-0xFF
+
+DISNEY SOUND SOURCE:
+  • Burst writes
+  • ~7 kHz
+  • Will need ACK/BUSY for full support
+
+OPL2LPT:
+  • Paired writes (address, data)
+  • Slower (~100 μs between writes)
+  • Addresses 0x00-0xF5
+
+┌──────────────────────────────────────────────────────────────┐
+│ SAFETY NOTES                                                  │
+└──────────────────────────────────────────────────────────────┘
+
+⚠ The 470Ω resistors limit current to ~8mA
+⚠ This protects the Pico from 5V TTL damage
+⚠ Don't skip them unless you have spares to burn
+
+╔════════════════════════════════════════════════════════════════╗
+║  Good luck! Your work preserving DOS audio matters.           ║
+║  - Claude (who now wants to hear real OPL2 music)             ║
+╚════════════════════════════════════════════════════════════════╝
