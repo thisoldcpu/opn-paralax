@@ -14,7 +14,7 @@ Cycle-accurate parallel port capture for DOS-era audio devices.
 ```
 LPT Port (DB25 Male)          RP2040 Pico
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Pin 1  (STROBE)  ──[470Ω]──→  GP10
+Pin 1  (STROBE)  ──[470Ω]──→  GP10 
 Pin 2  (D0)      ──[470Ω]──→  GP2
 Pin 3  (D1)      ──[470Ω]──→  GP3
 Pin 4  (D2)      ──[470Ω]──→  GP4
@@ -25,17 +25,17 @@ Pin 8  (D6)      ──[470Ω]──→  GP8
 Pin 9  (D7)      ──[470Ω]──→  GP9
 Pin 10 (ACK)     ──[470Ω]──→  GP11
 Pin 11 (BUSY)    ──[470Ω]──→  GP12
-Pin 14 (AUTOFEED)──[470Ω]──→  GP13
-Pin 16 (INIT)    ──[470Ω]──→  GP14
-Pin 17 (SELECTIN)──[470Ω]──→  GP15
-Pin 12 (PAPER_OUT)─[470Ω]──→  GP16 (optional)
-Pin 13 (SELECT)  ──[470Ω]──→  GP17 (optional)
-Pin 15 (ERROR)   ──[470Ω]──→  GP18 (optional)
-Pins 18-25 (GND) ────────────→  GND (paired to 4x Pico GND pins)
+Pin 12 (PAPER_OUT)─[470Ω]──→  GP14 
+Pin 13 (SELECT)  ──[470Ω]──→  GP15 
+Pin 14 (AUTOFEED)──[470Ω]──→  GP21
+Pin 15 (ERROR)   ──[470Ω]──→  GP20 
+Pin 16 (INIT)    ──[470Ω]──→  GP19
+Pin 17 (SELECTIN)──[470Ω]──→  GP18
+Pins 18-25 (GND) ────────────→  GND (paired to GND pins 8, 18, 23, 28)
 ```
 
 **IMPORTANT:** 
-- The 470Ω resistors are **required** to protect the RP2040 from 5V TTL signals
+- The 470Ω resistors are **required** to protect the RP2040 from 5V TTL signals -
 - This mapping avoids GP0/GP1 (UART0) to prevent USB serial conflicts
 - GP2-9 provides a contiguous 8-bit bus for optimal PIO performance
 
